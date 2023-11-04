@@ -2,7 +2,7 @@
 	@SteamId NVARCHAR(50)
 AS
 BEGIN
-	SELECT [Id], [SteamId], [PersonaName], [Avatar], [AvatarMedium], [AvatarFull], [TimeCreatedSteam], [TimeCreatedDb], [LastUpdateDb]
+	SELECT [Id], [SteamId], [PersonaName], [ProfileUrl], [Avatar], [AvatarMedium], [AvatarFull], [TimeCreatedSteam], [TimeCreatedDb], [LastUpdateDb]
 	FROM [dbo].[User]
 	WHERE [SteamId] = @SteamId
 END

@@ -65,4 +65,7 @@
     <Build Include="dbo\StoredProcedures\spUser_GetBySteamId.sql" />
     <Build Include="dbo\StoredProcedures\spUser_Insert.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="SteamNET.Database.publish.xml" />
+  </ItemGroup>
 </Project>

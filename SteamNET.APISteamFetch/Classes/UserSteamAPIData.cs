@@ -1,11 +1,14 @@
-﻿namespace SteamNET.APISteamFetch.Classes
+﻿using System.Text.Json.Serialization;
+
+namespace SteamNET.APISteamFetch.Classes
 {
     public class UserSteamAPIData
     {
-        public Response response { get; set; }
+        [JsonPropertyName("response")]
+        public UserResponse userResponse { get; set; }
     }
 
-    public class Response
+    public class UserResponse
     {
         public Player[] players { get; set; }
     }

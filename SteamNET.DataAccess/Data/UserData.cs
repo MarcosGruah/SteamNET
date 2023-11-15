@@ -1,6 +1,6 @@
 ﻿using SteamNET.DataAccess.DbAccess;
 using SteamNET.DataAccess.Models;
-using System.Security.Cryptography.X509Certificates;
+using System.Collections;
 
 namespace SteamNET.DataAccess.Data
 {
@@ -17,6 +17,19 @@ namespace SteamNET.DataAccess.Data
         {
             var result = await _db.LoadData<UserModel, dynamic>("dbo.spUser_GetBySteamId", new { SteamId = steamId });
             return result.FirstOrDefault();
+        }
+
+        public async Task<IEnumerable<OwnedGameModel>> GetUserOwnedGames(string steamUserId)
+        {
+            IEnumerable<OwnedGameModel> result = await _db.LoadData<OwnedGameModel, dynamic>("spUserGame_GetBySteamId", new { SteamUserId = steamUserId });
+            return result;
+        }
+
+        public Task InsertOwnedGame(OwnedGameModel game)
+        {
+            return _db.SaveData(
+                "spUserGame_Insert",
+                new { game.SteamUserId, game.SteamAppid, game.minutesPlayedForever, game.minutesPlayed2Weeks });
         }
 
         public Task InsertUser(UserModel user)

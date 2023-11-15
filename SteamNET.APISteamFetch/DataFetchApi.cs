@@ -2,6 +2,7 @@
 using SteamNET.DataAccess.Data;
 using SteamNET.DataAccess.Models;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace SteamNET.APISteamFetch
 {
@@ -9,8 +10,71 @@ namespace SteamNET.APISteamFetch
     {
         public static void ConfigureApi(this WebApplication app)
         {
+            app.MapGet("/AppInfo/{appId}", GetSteamAppInfo);
             app.MapGet("/User/UserOwnedGames/{steamId}", GetUserOwnedGames);
             app.MapGet("/User/UserInfo/{steamId}", GetUserBySteamId);
+        }
+
+        private static async Task<IResult> GetSteamAppInfo(string appId, IUserData data, IHttpClientFactory httpClientFactory)
+        {
+            using HttpClient client = httpClientFactory.CreateClient();
+
+            try
+            {
+                string? result = null;
+
+                if (result is null)
+                {
+                    Uri userInfoEndpoint = new($"https://store.steampowered.com/api/appdetails?appids={appId}&cc=brl&l=en");
+
+                    var apiResponseData = await client.GetStringAsync(userInfoEndpoint);
+                    var jsonDocument = JsonDocument.Parse(apiResponseData);
+                    var newRoot = jsonDocument.RootElement.GetProperty($"{appId}").GetProperty("data");
+
+                    newRoot.TryGetProperty("name", out var gameName);
+                    newRoot.TryGetProperty("steam_appid", out var steamAppId);
+                    newRoot.TryGetProperty("is_free", out var isFree);
+                    newRoot.TryGetProperty("short_description", out var gameShortDescription);
+                    newRoot.TryGetProperty("header_image", out var headerImage);
+
+                    int? gamePrice;
+
+                    if (isFree.GetBoolean())
+                    {
+                        gamePrice = 0;
+                    }
+                    else
+                    {
+                        if (newRoot.GetProperty("price_overview").TryGetProperty("initial", out var price))
+                        {
+                            gamePrice = price.GetInt32();
+                        }
+                        else
+                        {
+                            gamePrice = 0;
+                        }
+                    }
+
+                    GameModel game = new()
+                    {
+                        GameName = gameName.ToString(),
+                        SteamAppId = steamAppId.ToString(),
+                        IsFree = isFree.GetBoolean(),
+                        Price = (int)gamePrice,
+                        ShortDescription = gameShortDescription.ToString(),
+                        ImageUrl = headerImage.ToString()
+                    };
+
+                    await data.InsertGame(game);
+                    return Results.Ok(game);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem(ex.Message);
+            }
+
+            return Results.StatusCode(StatusCodes.Status500InternalServerError);
         }
 
         private static async Task<IResult> GetUserBySteamId(string steamId, IUserData data, IHttpClientFactory httpClientFactory, IConfiguration config)
@@ -100,7 +164,7 @@ namespace SteamNET.APISteamFetch
                                 var newItem = new OwnedGameModel
                                 {
                                     SteamUserId = steamId,
-                                    SteamAppid = game.appid.ToString(),
+                                    SteamAppId = game.appid.ToString(),
                                     minutesPlayedForever = game.playtime_forever,
                                     minutesPlayed2Weeks = game.playtime_2weeks
                                 };

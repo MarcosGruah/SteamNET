@@ -67,6 +67,11 @@
     <Build Include="dbo\Tables\UserGame.sql" />
     <Build Include="dbo\StoredProcedures\spUserGame_Insert.sql" />
     <Build Include="dbo\StoredProcedures\spUserGame_GetBySteamId.sql" />
+    <Build Include="dbo\Tables\Game.sql" />
+    <Build Include="dbo\StoredProcedures\spGame_Insert.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="SteamNET.Database.refactorlog" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SteamNET.Database.publish.xml" />

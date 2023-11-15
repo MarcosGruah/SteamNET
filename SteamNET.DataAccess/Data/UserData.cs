@@ -24,11 +24,18 @@ namespace SteamNET.DataAccess.Data
             return result;
         }
 
+        public Task InsertGame(GameModel game)
+        {
+            return _db.SaveData(
+                "spGame_Insert",
+                new { game.GameName, game.SteamAppId, game.IsFree, game.ShortDescription, game.Price, game.ImageUrl });
+        }
+
         public Task InsertOwnedGame(OwnedGameModel game)
         {
             return _db.SaveData(
                 "spUserGame_Insert",
-                new { game.SteamUserId, game.SteamAppid, game.minutesPlayedForever, game.minutesPlayed2Weeks });
+                new { game.SteamUserId, game.SteamAppId, game.minutesPlayedForever, game.minutesPlayed2Weeks });
         }
 
         public Task InsertUser(UserModel user)

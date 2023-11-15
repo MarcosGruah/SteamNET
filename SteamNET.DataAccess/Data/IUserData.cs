@@ -1,5 +1,4 @@
 ﻿using SteamNET.DataAccess.Models;
-using System.Collections;
 
 namespace SteamNET.DataAccess.Data
 {

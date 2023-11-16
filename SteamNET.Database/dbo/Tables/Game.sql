@@ -6,5 +6,6 @@
 	[IsFree] BIT NOT NULL,
 	[ShortDescription] NVARCHAR(MAX) NOT NULL,
 	[Price] INT NOT NULL, 
-	[ImageUrl] NVARCHAR(100) NOT NULL
+	[ImageUrl] NVARCHAR(100) NOT NULL,
+    [updatedAt] DATETIME2 NOT NULL DEFAULT GETUTCDATE() 
 )

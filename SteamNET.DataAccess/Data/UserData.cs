@@ -12,6 +12,12 @@ namespace SteamNET.DataAccess.Data
             _db = db;
         }
 
+        public async Task<IEnumerable<string>> GetAppsWithoutInfo()
+        {
+            IEnumerable<string> result = await _db.LoadData<string, dynamic>("spUserGame_GetAppsWithoutInfo", new { });
+            return result;
+        }
+
         public async Task<GameModel?> GetGameBySteamAppId(string steamAppId)
         {
             var result = await _db.LoadData<GameModel, dynamic>("dbo.spGame_GetBySteamAppId", new { SteamAppId = steamAppId });

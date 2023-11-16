@@ -15,5 +15,7 @@ namespace SteamNET.DataAccess.Data
         Task InsertUser(UserModel user);
 
         Task InsertOwnedGame(OwnedGameModel user);
+
+        Task<IEnumerable<string>> GetAppsWithoutInfo();
     }
 }

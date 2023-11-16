@@ -70,8 +70,9 @@
     <Build Include="dbo\Tables\Game.sql" />
     <Build Include="dbo\StoredProcedures\spGame_Insert.sql" />
     <Build Include="dbo\StoredProcedures\spGame_GetBySteamAppId.sql" />
+    <Build Include="dbo\StoredProcedures\spUserGame_GetAppsWithoutInfo.sql" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="SteamNET.Database.publish.xml" />
+    <RefactorLog Include="SteamNET.Database.refactorlog" />
   </ItemGroup>
 </Project>

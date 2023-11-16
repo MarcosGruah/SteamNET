@@ -2,7 +2,6 @@
 using SteamNET.DataAccess.Data;
 using SteamNET.DataAccess.Models;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 
 namespace SteamNET.APISteamFetch
 {
@@ -10,9 +9,34 @@ namespace SteamNET.APISteamFetch
     {
         public static void ConfigureApi(this WebApplication app)
         {
+            app.MapGet("/AppInfo/GetAppsWithoutInfo", GetAppsWithoutInfo);
             app.MapGet("/AppInfo/{appId}", GetSteamAppInfo);
             app.MapGet("/User/UserOwnedGames/{steamId}", GetUserOwnedGames);
             app.MapGet("/User/UserInfo/{steamId}", GetUserBySteamId);
+        }
+
+        private static async Task<IResult> GetAppsWithoutInfo(IUserData data, IHttpClientFactory client)
+        {
+            try
+            {
+                var result = await data.GetAppsWithoutInfo();
+                if (result is not null)
+                {
+                    int count = 0;
+                    foreach (var appId in result)
+                    {
+                        var appData = await GetSteamAppInfo(appId, data, client);
+                        count++;
+                        await Console.Out.WriteLineAsync($"{count}/{result.Count()}");
+                        await Task.Delay(2000);
+                    }
+                }
+                return Results.Ok();
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem(ex.Message);
+            }
         }
 
         private static async Task<IResult> GetSteamAppInfo(string appId, IUserData data, IHttpClientFactory httpClientFactory)

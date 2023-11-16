@@ -8,6 +8,8 @@ namespace SteamNET.DataAccess.Data
 
         Task<IEnumerable<OwnedGameModel>> GetUserOwnedGames(string steamId);
 
+        Task<GameModel?> GetGameBySteamAppId(string steamAppId);
+
         Task InsertGame(GameModel game);
 
         Task InsertUser(UserModel user);

@@ -21,7 +21,7 @@ namespace SteamNET.APISteamFetch
 
             try
             {
-                string? result = null;
+                var result = await data.GetGameBySteamAppId(appId);
 
                 if (result is null)
                 {
@@ -66,15 +66,21 @@ namespace SteamNET.APISteamFetch
                     };
 
                     await data.InsertGame(game);
-                    return Results.Ok(game);
+
+                    result = await data.GetGameBySteamAppId(appId);
+
+                    if (result is null)
+                    {
+                        return Results.StatusCode(StatusCodes.Status500InternalServerError);
+                    }
                 }
+
+                return Results.Ok(result);
             }
             catch (Exception ex)
             {
                 return Results.Problem(ex.Message);
             }
-
-            return Results.StatusCode(StatusCodes.Status500InternalServerError);
         }
 
         private static async Task<IResult> GetUserBySteamId(string steamId, IUserData data, IHttpClientFactory httpClientFactory, IConfiguration config)

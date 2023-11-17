@@ -33,5 +33,12 @@ namespace SteamNET.DataAccess.DbAccess
 
             await connection.ExecuteAsync(storedProcedure, parameters, commandType: CommandType.StoredProcedure);
         }
+
+        public async Task DeleteData<T>(string storedProcedure, T parameters, string connectionId = "Default")
+        {
+            using IDbConnection connection = new SqlConnection(_config.GetConnectionString(connectionId));
+
+            await connection.ExecuteAsync(storedProcedure, parameters, commandType: CommandType.StoredProcedure);
+        }
     }
 }

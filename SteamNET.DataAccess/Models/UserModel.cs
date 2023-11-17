@@ -11,6 +11,6 @@
         public string AvatarFull { get; set; }
         public DateTime TimeCreatedSteam { get; set; }
         public DateTime TimeCreatedDb { get; set; }
-        public DateTime LastUpdateDb { get; set; }
+        public DateTime UpdatedAt { get; set; }
     }
 }

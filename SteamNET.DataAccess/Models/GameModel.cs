@@ -8,5 +8,6 @@
         public string ShortDescription { get; set; }
         public int Price { get; set; }
         public string ImageUrl { get; set; }
+        public DateTime UpdatedAt { get; set; }
     }
 }

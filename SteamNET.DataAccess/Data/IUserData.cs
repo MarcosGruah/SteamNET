@@ -16,6 +16,10 @@ namespace SteamNET.DataAccess.Data
 
         Task InsertOwnedGame(OwnedGameModel user);
 
+        Task RemoveOwnedGames(string steamId);
+
+        Task AddGameIgnoreList(string steamAppId);
+
         Task<IEnumerable<string>> GetAppsWithoutInfo();
     }
 }

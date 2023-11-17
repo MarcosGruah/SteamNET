@@ -9,29 +9,114 @@ namespace SteamNET.APISteamFetch
     {
         public static void ConfigureApi(this WebApplication app)
         {
-            app.MapGet("/AppInfo/GetAppsWithoutInfo", GetAppsWithoutInfo);
-            app.MapGet("/AppInfo/{appId}", GetSteamAppInfo);
-            app.MapGet("/User/UserOwnedGames/{steamId}", GetUserOwnedGames);
             app.MapGet("/User/UserInfo/{steamId}", GetUserBySteamId);
+            app.MapGet("/User/UserOwnedGames/{steamId}", GetUserOwnedGames);
+            app.MapGet("/AppInfo/{appId}", GetSteamAppInfo);
+            app.MapGet("/AppInfo/UpdateAppDatabase", UpdateAppDatabase);
         }
 
-        private static async Task<IResult> GetAppsWithoutInfo(IUserData data, IHttpClientFactory client)
+        private static async Task<IResult> GetUserBySteamId(string steamId, IUserData data, IHttpClientFactory httpClientFactory, IConfiguration config)
         {
+            using HttpClient client = httpClientFactory.CreateClient();
+            string? steamApiKey = config["Steam:WebApiKey"];
+
             try
             {
-                var result = await data.GetAppsWithoutInfo();
-                if (result is not null)
+                var result = await data.GetUserBySteamId(steamId);
+
+                if (result is null || result is not null && (DateTime.UtcNow - result.UpdatedAt).TotalDays > 7)
                 {
-                    int count = 0;
-                    foreach (var appId in result)
+                    Uri userInfoEndpoint = new($"https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key={steamApiKey}&steamids={steamId}");
+
+                    var apiResponseData = await client.GetFromJsonAsync<UserSteamAPIData>(
+                        userInfoEndpoint,
+                        new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+                    if (apiResponseData?.userResponse?.players?.Length != 1)
                     {
-                        var appData = await GetSteamAppInfo(appId, data, client);
-                        count++;
-                        await Console.Out.WriteLineAsync($"{count}/{result.Count()}");
-                        await Task.Delay(2000);
+                        return Results.StatusCode(StatusCodes.Status500InternalServerError);
+                    }
+
+                    var r = apiResponseData.userResponse.players[0];
+                    UserModel newUser = new UserModel
+                    {
+                        SteamId = r.steamid,
+                        PersonaName = r.personaname,
+                        ProfileUrl = r.profileurl,
+                        Avatar = r.avatar,
+                        AvatarMedium = r.avatarmedium,
+                        AvatarFull = r.avatarfull,
+                        TimeCreatedSteam = DateTimeOffset.FromUnixTimeSeconds(r.timecreated).UtcDateTime
+                    };
+                    await data.InsertUser(newUser);
+
+                    result = await data.GetUserBySteamId(steamId);
+                    if (result is null)
+                    {
+                        return Results.StatusCode(StatusCodes.Status500InternalServerError);
                     }
                 }
-                return Results.Ok();
+
+                return Results.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem(ex.Message);
+            }
+        }
+
+        private static async Task<IResult> GetUserOwnedGames(string steamId, IUserData data, IHttpClientFactory httpClientFactory, IConfiguration config)
+        {
+            using HttpClient client = httpClientFactory.CreateClient();
+            string? steamApiKey = config["Steam:WebApiKey"];
+
+            try
+            {
+                var result = await data.GetUserOwnedGames(steamId);
+
+                if (result is null || !result.Any() || (DateTime.UtcNow - result.First().UpdatedAt).TotalDays > 7)
+                {
+                    Uri userInfoEndpoint = new($"https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key={steamApiKey}&steamid={steamId}&include_played_free_games=true");
+
+                    var apiResponseData = await client.GetFromJsonAsync<OwnedGamesSteamAPIData>(
+                        userInfoEndpoint,
+                        new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+                    if (apiResponseData?.ownedGamesResponse?.games?.Length <= 0)
+                    {
+                        return Results.StatusCode(StatusCodes.Status500InternalServerError);
+                    }
+
+                    if (apiResponseData?.ownedGamesResponse?.games.Length > 0)
+                    {
+                        List<OwnedGameModel> ownedGamesList = new();
+                        await data.RemoveOwnedGames(steamId);
+                        foreach (var game in apiResponseData.ownedGamesResponse.games)
+                        {
+                            if (game.playtime_forever > 1440) // Only add games with more than 24h of playtime.
+                            {
+                                var newItem = new OwnedGameModel
+                                {
+                                    SteamUserId = steamId,
+                                    SteamAppId = game.appid.ToString(),
+                                    MinutesPlayedForever = game.playtime_forever,
+                                    MinutesPlayed2Weeks = game.playtime_2weeks
+                                };
+                                ownedGamesList.Add(newItem);
+                                await data.InsertOwnedGame(newItem);
+                            }
+                        }
+                    }
+
+                    result = await data.GetUserOwnedGames(steamId);
+
+                    if (result is null)
+                    {
+                        return Results.StatusCode(StatusCodes.Status500InternalServerError);
+                    }
+                }
+
+                return Results.Ok(result);
             }
             catch (Exception ex)
             {
@@ -47,7 +132,7 @@ namespace SteamNET.APISteamFetch
             {
                 var result = await data.GetGameBySteamAppId(appId);
 
-                if (result is null)
+                if (result is null || (DateTime.UtcNow - result.UpdatedAt).TotalDays > 14)
                 {
                     Uri userInfoEndpoint = new($"https://store.steampowered.com/api/appdetails?appids={appId}&cc=brl&l=en");
 
@@ -103,116 +188,39 @@ namespace SteamNET.APISteamFetch
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return Results.Problem(ex.Message);
             }
         }
 
-        private static async Task<IResult> GetUserBySteamId(string steamId, IUserData data, IHttpClientFactory httpClientFactory, IConfiguration config)
+        private static async Task<IResult> UpdateAppDatabase(IUserData data, IHttpClientFactory client)
         {
-            using HttpClient client = httpClientFactory.CreateClient();
-            string? steamApiKey = config["Steam:WebApiKey"];
-
             try
             {
-                var result = await data.GetUserBySteamId(steamId);
-
-                //bool isOlderThan24Hours = (DateTime.UtcNow - result?.LastUpdateDb) > TimeSpan.FromSeconds(24);
-
-                if (result is null)
+                var result = await data.GetAppsWithoutInfo();
+                if (result is not null && result?.Count() > 0)
                 {
-                    Uri userInfoEndpoint = new($"https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key={steamApiKey}&steamids={steamId}");
-
-                    var apiResponseData = await client.GetFromJsonAsync<UserSteamAPIData>(
-                        userInfoEndpoint,
-                        new JsonSerializerOptions(JsonSerializerDefaults.Web));
-
-                    if (apiResponseData?.userResponse?.players?.Length != 1)
+                    int count = 0;
+                    foreach (var appId in result)
                     {
-                        return Results.StatusCode(StatusCodes.Status500InternalServerError);
-                    }
-
-                    var r = apiResponseData.userResponse.players[0];
-                    UserModel newUser = new UserModel
-                    {
-                        SteamId = r.steamid,
-                        PersonaName = r.personaname,
-                        ProfileUrl = r.profileurl,
-                        Avatar = r.avatar,
-                        AvatarMedium = r.avatarmedium,
-                        AvatarFull = r.avatarfull,
-                        TimeCreatedSteam = DateTimeOffset.FromUnixTimeSeconds(r.timecreated).UtcDateTime
-                    };
-                    await data.InsertUser(newUser);
-
-                    result = await data.GetUserBySteamId(steamId);
-                    if (result is null)
-                    {
-                        return Results.StatusCode(StatusCodes.Status500InternalServerError);
+                        var appData = await GetSteamAppInfo(appId, data, client);
+                        count++;
+                        await Console.Out.WriteLineAsync($"{count}/{result.Count()}");
+                        await Task.Delay(2000);
                     }
                 }
 
-                return Results.Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return Results.Problem(ex.Message);
-            }
-        }
-
-        private static async Task<IResult> GetUserOwnedGames(string steamId, IUserData data, IHttpClientFactory httpClientFactory, IConfiguration config)
-        {
-            using HttpClient client = httpClientFactory.CreateClient();
-            string? steamApiKey = config["Steam:WebApiKey"];
-
-            try
-            {
-                var result = await data.GetUserOwnedGames(steamId);
-
-                //bool isOlderThan24Hours = (DateTime.UtcNow - result?.LastUpdateDb) > TimeSpan.FromSeconds(24);
-
-                if (result is null || !result.Any())
+                var resultToIgnore = await data.GetAppsWithoutInfo();
+                if (resultToIgnore is not null && resultToIgnore?.Count() > 0)
                 {
-                    Uri userInfoEndpoint = new($"https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key={steamApiKey}&steamid={steamId}&include_played_free_games=true");
-
-                    var apiResponseData = await client.GetFromJsonAsync<OwnedGamesSteamAPIData>(
-                        userInfoEndpoint,
-                        new JsonSerializerOptions(JsonSerializerDefaults.Web));
-
-                    if (apiResponseData?.ownedGamesResponse?.games?.Length <= 0)
+                    foreach (var appid in resultToIgnore)
                     {
-                        return Results.StatusCode(StatusCodes.Status500InternalServerError);
-                    }
-
-                    if (apiResponseData?.ownedGamesResponse?.games.Length > 0)
-                    {
-                        List<OwnedGameModel> ownedGamesList = new();
-
-                        foreach (var game in apiResponseData.ownedGamesResponse.games)
-                        {
-                            if (game.playtime_forever > 120)
-                            {
-                                var newItem = new OwnedGameModel
-                                {
-                                    SteamUserId = steamId,
-                                    SteamAppId = game.appid.ToString(),
-                                    minutesPlayedForever = game.playtime_forever,
-                                    minutesPlayed2Weeks = game.playtime_2weeks
-                                };
-                                ownedGamesList.Add(newItem);
-                                await data.InsertOwnedGame(newItem);
-                            }
-                        }
-                    }
-
-                    result = await data.GetUserOwnedGames(steamId);
-
-                    if (result is null)
-                    {
-                        return Results.StatusCode(StatusCodes.Status500InternalServerError);
+                        await data.AddGameIgnoreList(appid);
+                        await Console.Out.WriteLineAsync($"{appid} added to the ignore list.");
                     }
                 }
 
-                return Results.Ok(result);
+                return Results.Ok();
             }
             catch (Exception ex)
             {

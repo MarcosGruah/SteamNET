@@ -12,6 +12,11 @@ namespace SteamNET.DataAccess.Data
             _db = db;
         }
 
+        public Task AddGameIgnoreList(string steamAppId)
+        {
+            return _db.SaveData("spGameInvalid_Insert", new { SteamAppId = steamAppId });
+        }
+
         public async Task<IEnumerable<string>> GetAppsWithoutInfo()
         {
             IEnumerable<string> result = await _db.LoadData<string, dynamic>("spUserGame_GetAppsWithoutInfo", new { });
@@ -47,7 +52,7 @@ namespace SteamNET.DataAccess.Data
         {
             return _db.SaveData(
                 "spUserGame_Insert",
-                new { game.SteamUserId, game.SteamAppId, game.minutesPlayedForever, game.minutesPlayed2Weeks });
+                new { game.SteamUserId, game.SteamAppId, game.MinutesPlayedForever, game.MinutesPlayed2Weeks });
         }
 
         public Task InsertUser(UserModel user)
@@ -55,6 +60,11 @@ namespace SteamNET.DataAccess.Data
             return _db.SaveData(
                 "dbo.spUser_Insert",
                 new { user.SteamId, user.PersonaName, user.ProfileUrl, user.Avatar, user.AvatarMedium, user.AvatarFull, user.TimeCreatedSteam });
+        }
+
+        public Task RemoveOwnedGames(string steamId)
+        {
+            return _db.DeleteData("dbo.spUserGame_Delete", new { SteamUserId = steamId });
         }
     }
 }

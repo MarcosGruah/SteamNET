@@ -71,8 +71,8 @@
     <Build Include="dbo\StoredProcedures\spGame_Insert.sql" />
     <Build Include="dbo\StoredProcedures\spGame_GetBySteamAppId.sql" />
     <Build Include="dbo\StoredProcedures\spUserGame_GetAppsWithoutInfo.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <RefactorLog Include="SteamNET.Database.refactorlog" />
+    <Build Include="dbo\StoredProcedures\spUserGame_Delete.sql" />
+    <Build Include="dbo\Tables\GameInvalid.sql" />
+    <Build Include="dbo\StoredProcedures\spGameInvalid_Insert.sql" />
   </ItemGroup>
 </Project>

@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SteamNET.DataAccess", "Stea
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "SteamNET.Database", "SteamNET.Database\SteamNET.Database.sqlproj", "{519BAB7D-A445-4740-83C2-8D6292A3E3A8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamNET.UI", "SteamNET.UI\SteamNET.UI.csproj", "{EC28D6CF-D2E6-4788-9368-5F20A99FF8A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SteamNET.UI", "SteamNET.UI\SteamNET.UI.csproj", "{EC28D6CF-D2E6-4788-9368-5F20A99FF8A4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

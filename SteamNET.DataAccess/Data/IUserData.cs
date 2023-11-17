@@ -21,5 +21,7 @@ namespace SteamNET.DataAccess.Data
         Task AddGameIgnoreList(string steamAppId);
 
         Task<IEnumerable<string>> GetAppsWithoutInfo();
+
+        Task<IEnumerable<GameModel?>> GetAllGames();
     }
 }

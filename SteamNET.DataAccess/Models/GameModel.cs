@@ -2,6 +2,7 @@
 {
     public class GameModel
     {
+        public Guid Id { get; set; }
         public string GameName { get; set; }
         public string SteamAppId { get; set; }
         public bool IsFree { get; set; }

@@ -1,0 +1,73 @@
+﻿@page "/games"
+@using SteamNET.DataAccess.Models
+@using Microsoft.AspNetCore.Components.QuickGrid
+@attribute [StreamRendering]
+@inject HttpClient client
+@using System.Text.Json;
+@rendermode InteractiveServer
+
+<PageTitle>Games</PageTitle>
+
+<h1>Games</h1>
+
+@if (items is null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="grid">
+        <QuickGrid Items="@FilteredItems" Pagination="@pagination">
+            <PropertyColumn Property="@(c => c.GameName)" Sortable="true" Class="game-name" IsDefaultSortColumn="true">
+                <ColumnOptions>
+                    <div class="search-box">
+                        <input type="search" autofocus @bind="nameFilter" @bind:event="oninput" placeholder="Game name..." />
+                    </div>
+                </ColumnOptions>
+            </PropertyColumn>
+            <PropertyColumn Title="Price" Property="@(c => ConvertedPrice(c.Price))" Format="C" Sortable="true" Align="Align.Right" />
+            <TemplateColumn Title="Action">
+                <a href="gameinfo/@(context.Id)" class="btn btn-outline-primary">Details</a>
+            </TemplateColumn>
+        </QuickGrid>
+    </div>
+
+    <Paginator State="@pagination" />
+}
+
+
+@code {
+    IQueryable<GameModel>? items;
+    PaginationState pagination = new PaginationState { ItemsPerPage = 15 };
+    string nameFilter = string.Empty;
+
+    IQueryable<GameModel>? FilteredItems => items?.Where(x => x.GameName.Contains(nameFilter, StringComparison.CurrentCultureIgnoreCase));
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+
+        {
+            items = (await client.GetFromJsonAsync<List<GameModel>>("https://localhost:7025/games/getallgames", new JsonSerializerOptions(JsonSerializerDefaults.Web))).AsQueryable();
+        }
+
+        catch (Exception ex)
+
+        {
+
+            Console.WriteLine(ex.Message);
+
+        }
+
+    }
+
+    public double ConvertedPrice(int value)
+    {
+
+        // Move the last two digits to the decimal part
+        double decimalPart = value % 100;
+        double convertedPrice = (value / 100) + (decimalPart / 100);
+        return convertedPrice;
+    }
+}

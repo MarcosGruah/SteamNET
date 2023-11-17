@@ -35,6 +35,12 @@ namespace SteamNET.DataAccess.Data
             return result.FirstOrDefault();
         }
 
+        public async Task<IEnumerable<GameModel?>> GetAllGames()
+        {
+            var result = await _db.LoadData<GameModel, dynamic>("dbo.spGame_GetAll", new { });
+            return result;
+        }
+
         public async Task<IEnumerable<OwnedGameModel>> GetUserOwnedGames(string steamUserId)
         {
             IEnumerable<OwnedGameModel> result = await _db.LoadData<OwnedGameModel, dynamic>("spUserGame_GetBySteamId", new { SteamUserId = steamUserId });

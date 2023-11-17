@@ -9,10 +9,31 @@ namespace SteamNET.APISteamFetch
     {
         public static void ConfigureApi(this WebApplication app)
         {
+            app.MapGet("/games/getallgames", GetAllGames);
             app.MapGet("/User/UserInfo/{steamId}", GetUserBySteamId);
             app.MapGet("/User/UserOwnedGames/{steamId}", GetUserOwnedGames);
             app.MapGet("/AppInfo/{appId}", GetSteamAppInfo);
             app.MapGet("/AppInfo/UpdateAppDatabase", UpdateAppDatabase);
+        }
+
+        private static async Task<IResult> GetAllGames(IUserData data, IHttpClientFactory httpClientFactory)
+        {
+            using HttpClient client = httpClientFactory.CreateClient();
+
+            try
+            {
+                var result = await data.GetAllGames();
+
+                if (result is null)
+                {
+                    return Results.Problem();
+                }
+                return Results.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem(ex.Message);
+            }
         }
 
         private static async Task<IResult> GetUserBySteamId(string steamId, IUserData data, IHttpClientFactory httpClientFactory, IConfiguration config)

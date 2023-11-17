@@ -74,5 +74,6 @@
     <Build Include="dbo\StoredProcedures\spUserGame_Delete.sql" />
     <Build Include="dbo\Tables\GameInvalid.sql" />
     <Build Include="dbo\StoredProcedures\spGameInvalid_Insert.sql" />
+    <Build Include="dbo\StoredProcedures\spGame_GetAll.sql" />
   </ItemGroup>
 </Project>

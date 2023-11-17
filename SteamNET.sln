@@ -3,11 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34227.203
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamNET.APISteamFetch", "SteamNET.APISteamFetch\SteamNET.APISteamFetch.csproj", "{AD3FB08B-4B67-470F-9FC5-ECC9032D47A3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SteamNET.APISteamFetch", "SteamNET.APISteamFetch\SteamNET.APISteamFetch.csproj", "{AD3FB08B-4B67-470F-9FC5-ECC9032D47A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamNET.DataAccess", "SteamNET.DataAccess\SteamNET.DataAccess.csproj", "{87D3DBC7-12C3-4871-8172-3F55AEDF82A5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SteamNET.DataAccess", "SteamNET.DataAccess\SteamNET.DataAccess.csproj", "{87D3DBC7-12C3-4871-8172-3F55AEDF82A5}"
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "SteamNET.Database", "SteamNET.Database\SteamNET.Database.sqlproj", "{519BAB7D-A445-4740-83C2-8D6292A3E3A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamNET.UI", "SteamNET.UI\SteamNET.UI.csproj", "{EC28D6CF-D2E6-4788-9368-5F20A99FF8A4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +31,10 @@ Global
 		{519BAB7D-A445-4740-83C2-8D6292A3E3A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{519BAB7D-A445-4740-83C2-8D6292A3E3A8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{519BAB7D-A445-4740-83C2-8D6292A3E3A8}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{EC28D6CF-D2E6-4788-9368-5F20A99FF8A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC28D6CF-D2E6-4788-9368-5F20A99FF8A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC28D6CF-D2E6-4788-9368-5F20A99FF8A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC28D6CF-D2E6-4788-9368-5F20A99FF8A4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -35,14 +35,12 @@ else
     <Paginator State="@pagination" />
 }
 
-
 @code {
     IQueryable<GameModel>? items;
     PaginationState pagination = new PaginationState { ItemsPerPage = 15 };
     string nameFilter = string.Empty;
 
     IQueryable<GameModel>? FilteredItems => items?.Where(x => x.GameName.Contains(nameFilter, StringComparison.CurrentCultureIgnoreCase));
-
 
     protected override async Task OnInitializedAsync()
     {

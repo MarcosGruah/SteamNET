@@ -14,4 +14,8 @@
     <ProjectReference Include="..\SteamNET.DataAccess\SteamNET.DataAccess.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\bootstrap\" />
+  </ItemGroup>
+
 </Project>

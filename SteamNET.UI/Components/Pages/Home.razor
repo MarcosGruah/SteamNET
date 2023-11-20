@@ -16,7 +16,6 @@
             <img src="@(user.AvatarFull)" class="card-img-top w-50" alt="...">
             <p class="card-text mt-3">@(user.PersonaName) is a Steam user since @(user.TimeCreatedSteam.ToLocalTime().ToShortDateString())</p>
             <a href="@(user.ProfileUrl)" target="_blank" class="btn btn-primary">Go to Steam Profile</a>
-            <a href="@(user.ProfileUrl)" target="_blank" class="btn btn-primary">See owned games.</a>
         </div>
         <div class="card-footer text-body-secondary">
             Last Database Update: @(user.UpdatedAt.ToLocalTime())
@@ -43,10 +42,14 @@
         <label class="form-label">Steam ID</label>
         <InputText class="form-control" @bind-Value="steamId" />
     </div>
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <button type="submit" class="btn btn-primary mt-2">Submit</button>
+    <button disabled="@isDisabled" @onclick="SendRequestUpdate" class="btn btn-warning mt-2">@(buttonText)</button>
+
 </form>
 
-<button @onclick="SendRequestUpdate" class="btn btn-warning mt-2">@(buttonText)</button>
+
+
+
 
 @code {
     private string? steamId;
@@ -54,8 +57,9 @@
     private IEnumerable<OwnedGameModel>? ownedGames;
     private List<GameModel> gameInfo = new();
     private IEnumerable<CombinedModel>? allData;
-    private PaginationState pagination = new PaginationState { ItemsPerPage = 15 };
+    private PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
     private string buttonText = "Update game database.";
+    private bool isDisabled = false;
     protected async Task SendRequestUpdate()
     {
         try
@@ -63,7 +67,7 @@
             buttonText = "Loading...";
             await client.GetAsync("https://localhost:7025/AppInfo/UpdateAppDatabase");
             buttonText = "Game database is up to date.";
-
+            isDisabled = true;
         }
         catch (Exception ex)
         {

@@ -26,9 +26,6 @@ else
                 </ColumnOptions>
             </PropertyColumn>
             <PropertyColumn Title="Price" Property="@(c => ConvertedPrice(c.Price))" Format="C" Sortable="true" Align="Align.Right" />
-            <TemplateColumn Title="Action">
-                <a href="gameinfo/@(context.Id)" class="btn btn-outline-primary">Details</a>
-            </TemplateColumn>
         </QuickGrid>
     </div>
 
@@ -37,7 +34,7 @@ else
 
 @code {
     IQueryable<GameModel>? items;
-    PaginationState pagination = new PaginationState { ItemsPerPage = 15 };
+    PaginationState pagination = new PaginationState { ItemsPerPage = 25 };
     string nameFilter = string.Empty;
 
     IQueryable<GameModel>? FilteredItems => items?.Where(x => x.GameName.Contains(nameFilter, StringComparison.CurrentCultureIgnoreCase));

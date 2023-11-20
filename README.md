@@ -1,19 +1,21 @@
-# SteamNET - Project Requirements (Version 0.00)
+# SteamNET
 
-## User Input and Data Retrieval
+SteamNET is a .NET 8 project designed to retrieve data from the Steam API, process it, and store it in a SQL Database. It leverages an ASP.NET Core Minimal Web API to initiate GET requests to the Steam API. Requests are executed selectively, only when the required information is not already present in the SQL Database or is deemed outdated. If the data is available and up-to-date, it is directly retrieved from the database; otherwise, a request to the Steam API is triggered. Dapper is employed to streamline database communication within the project.
 
-- Users are required to input their Steam ID, which should consist of numeric characters rather than their username.
-- The system is designed to check the SQL database to determine the presence of an existing entry based on the provided Steam ID.
-- If the entry is found, the system evaluates the timestamp of the last update; in cases where it surpasses the 24-hour threshold, a new request is initiated to the Steam API to refresh the database.
-- In instances where data in the database has been updated within a 24-hour window, the system utilizes the existing database information and communicates to the user when the next data refresh will be possible.
+## The Profile UI
 
-## Display Functionality
+The user interface is simple, focusing on backend functionality. Input a valid SteamID to obtain basic information such as the user's avatar, Steam account creation date, and data age.
 
-- The primary objective for this iteration is the establishment of fundamental functionality:
-  - Display of the User Profile, encompassing the user's name and avatar.
-  - Display of a list of games owned by the user, displaying the Game Name and respective Game Image.
+![Profile UI](https://i.imgur.com/kdowMba.png)
 
-## Custom API Development
+## List of Owned Games
 
-- The project's core emphasis revolves around the selective extraction of specific data elements from the Steam API.
-- The project aims to construct a customized API designed to retrieve data from the SQL database and seamlessly deliver this information to the application.
+Under the user info, a table shows owned games with prices and playtime. Click "Update Game Database" to fetch missing information. Once updated, the button changes to "Game Database is up to date." For subsequent submissions with the same Steam ID, details for previously missing games will be displayed.
+
+![Update Database](https://i.imgur.com/kIJnLoI.png)
+
+## The Games Table
+
+This section showcases every game in the database, providing information on names and prices.
+
+![Games Table](https://i.imgur.com/4w7Ju4T.png)
